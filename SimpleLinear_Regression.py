@@ -63,6 +63,20 @@ class SimpleLinearRegression:
         self.intercept = np.mean(y) - (self.slope * np.mean(X))
         return self.intercept, self.slope
 
+    def fit_gradient_descent(self, X, y, Learning_rate=0.01, iterations=1000):
+        self.slope, self.intercept = 0, 0
+        for i in range(iterations + 1):
+            der_w = (self.slope * np.mean(X ** 2)) + (self.intercept * np.mean(X)) - (np.mean(X * y))
+            der_b = (self.slope * np.mean(X)) + self.intercept - (np.mean(y))
+            if der_w and der_b == 0:
+                print("Reached minima")
+                break
+            temp_slope = self.slope - (Learning_rate * der_w)
+            temp_intercept = self.intercept - (Learning_rate * der_b)
+            self.slope = temp_slope
+            self.intercept = temp_intercept
+        return self.intercept, self.slope
+
     def predict(self, X):
         """
         Predict using the linear model
@@ -132,7 +146,7 @@ if __name__ == '__main__':
     # A scatter plot and the aforementioned best-fit-line is plotted using matplotlib.pyplot
     plt.scatter(X_train, y_train)
     plt.plot(X_train, best_fit_line)
-    plt.title("Best fit line for the training data")
+    plt.title("Best fit line for the training data (Exact Method)")
     plt.show()
 
     # Making predictions over test data based on estimated intercept and slope
@@ -144,6 +158,29 @@ if __name__ == '__main__':
     se = quality.se(y_test, y_predict)
 
     # Various error measures
-    print("Root mean squared error = ", rmse)
-    print("mean squared error = ", mse)
-    print("squared error = ", se)
+    print("Root mean squared error(Exact Method) = ", rmse)
+    print("mean squared error(Exact Method) = ", mse)
+    print("squared error(Exact Method) = ", se)
+
+    b, m = clf.fit_gradient_descent(X_train, y_train, iterations=10000)
+    best_fit_line = [((m * x) + b) for x in X_train]
+
+    # Visualizing model over test data
+    # A scatter plot and the aforementioned best-fit-line is plotted using matplotlib.pyplot
+    plt.scatter(X_train, y_train)
+    plt.plot(X_train, best_fit_line)
+    plt.title("Best fit line for the training data (Gradient Descent)")
+    plt.show()
+
+    # Making predictions over test data based on estimated intercept and slope
+    print("Testing Accuracy on a new dataset... \n")
+    y_predict = clf.predict(X_test)
+
+    rmse = quality.rmse(y_test, y_predict)
+    mse = quality.mse(y_test, y_predict)
+    se = quality.se(y_test, y_predict)
+
+    # Various error measures
+    print("Root mean squared error(Gradient Descent) = ", rmse)
+    print("mean squared error(Gradient Descent) = ", mse)
+    print("squared error(Gradient Descent) = ", se)
